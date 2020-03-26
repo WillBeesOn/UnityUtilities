@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: UnityUtilitiesCI
+name: Build
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -21,16 +21,6 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
-
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
         
     # Finds CSC.exe and adds it to path for use in build step.    
     - name: Set up CSC.exe
@@ -39,3 +29,11 @@ jobs:
     # Builds source into DLL.
     - name: Build DLL
       run: csc -target:library -out:UnityUtilities.dll -reference:./lib/2019.3.6f1/UnityEngine.dll *.cs ./FileSystem/*.cs ./Collections/*.cs ./Collections/Generic/*.cs
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: UnityUtilities.dll
+        # Directory containing files to upload
+        path: ./
