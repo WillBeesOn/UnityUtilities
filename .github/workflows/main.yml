@@ -29,8 +29,8 @@ jobs:
     # Builds source into DLL.
     - name: Build DLL
       run: |
-        dir
-        csc -target:library -out:UnityUtilities.dll -reference:./lib/2019.3.6f1/UnityEngine.dll *.cs ./FileSystem/*.cs ./Collections/*.cs ./Collections/Generic/*.cs
+        mkdir build
+        csc -target:library -out:./build/UnityUtilities.dll -reference:./lib/2019.3.6f1/UnityEngine.dll *.cs ./FileSystem/*.cs ./Collections/*.cs ./Collections/Generic/*.cs
 
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
@@ -38,4 +38,4 @@ jobs:
         # Artifact name
         name: UnityUtilities.dll
         # Directory containing files to upload
-        path: ./
+        path: ./build
