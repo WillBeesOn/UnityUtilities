@@ -15,7 +15,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -29,11 +29,7 @@ jobs:
     # Builds source into DLL.
     - name: Build DLL
       run: |
-        echo %GITHUB_RUN_ID%
-        echo %GITHUB_SHA%
-        echo GITHUB_RUN_ID
-        echo GITHUB_SHA
-        echo "" > %GITHUB_RUN_ID%_%GITHUB_RUN_NUMBER%
+        echo $GITHUB_SHA
         csc -target:library -out:UnityUtilities.dll -reference:./lib/2019.3.6f1/UnityEngine.dll *.cs ./FileSystem/*.cs ./Collections/*.cs ./Collections/Generic/*.cs
 
     - name: Upload artifact
