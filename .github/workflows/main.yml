@@ -31,8 +31,6 @@ jobs:
       run: |
         echo %GITHUB_RUN_ID%
         echo %GITHUB_SHA%
-        echo $(GITHUB_RUN_ID)
-        echo $(GITHUB_SHA)
         echo GITHUB_RUN_ID
         echo GITHUB_SHA
         echo "" > %GITHUB_RUN_ID%_%GITHUB_RUN_NUMBER%
