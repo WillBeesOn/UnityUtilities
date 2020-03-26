@@ -15,7 +15,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -31,3 +31,11 @@ jobs:
       run: |
         echo Add other actions to build,
         echo test, and deploy your project.
+        
+    # Finds CSC.exe and adds it to path for use in build step.    
+    - name: Set up CSC.exe
+      uses: yoavain/Setup-CSC@v5
+    
+    # Builds source into DLL.
+    - name: Build DLL
+      run: csc -target:library -out:UnityUtilities.dll -reference:./lib/2019.3.6f1/UnityEngine.dll *.cs ./FileSystem/*.cs ./Collections/*.cs ./Collections/Generic/*.cs
