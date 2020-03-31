@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Unity.Transforms;
 using Unity.Entities;
-using Unity.Rendering;
 using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Collections;
@@ -19,16 +18,10 @@ namespace UnityUtilities {
             public class EntityGrid2D : List2D<Entity> {
                 // TODO Switch columns and rows so everything is in rows/x, columns/y format. Easier to remember.
 
-
                 /// <summary>
                 /// How large each cell of the grid is in Unity units. Readonly.
                 /// </summary>
                 public float2 CellSize { get; private set; }
-
-                /// <summary>
-                /// The amount of space between each cell in Unity units. Readonly.
-                /// </summary>
-                public float2 Padding { get; private set; }
 
                 public GridMode RenderMode { get; private set; }
 
@@ -46,7 +39,7 @@ namespace UnityUtilities {
                 /// </summary>
                 /// <param name="rows"></param>
                 /// <param name="cols"></param>
-                public EntityGrid2D(GridMode gridMode, int rows, int cols) : this(gridMode, rows, cols, new float2(0, 0)) { }
+                public EntityGrid2D(GridMode gridMode, int rows, int cols) : this(gridMode, rows, cols, new float2(1, 1)) { }
 
                 /// <summary>
                 /// Creates a grid with rows, columns, and cell size. Padding of 0x0.
@@ -54,16 +47,7 @@ namespace UnityUtilities {
                 /// <param name="rows"></param>
                 /// <param name="cols"></param>
                 /// <param name="cellSize"></param>
-                public EntityGrid2D(GridMode gridMode, int rows, int cols, float2 cellSize) : this(gridMode, rows, cols, cellSize, new float2(0, 0)) { }
-
-                /// <summary>
-                /// Creates a grid with rows, columns, cell size, and padding.
-                /// </summary>
-                /// <param name="rows"></param>
-                /// <param name="cols"></param>
-                /// <param name="cellSize"></param>
-                /// <param name="padding"></param>
-                public EntityGrid2D(GridMode gridMode, int rows, int cols, float2 cellSize, float2 padding) : this(gridMode, new List<Entity>(), rows, cols, cellSize, padding) { }
+                public EntityGrid2D(GridMode gridMode, int rows, int cols, float2 cellSize) : this(gridMode, new List<Entity>(), rows, cols, cellSize) { }
 
                 /// <summary>
                 /// Creates a grid from a list with rows and columns. Cell size and padding of 0x0.
@@ -71,16 +55,7 @@ namespace UnityUtilities {
                 /// <param name="initialList"></param>
                 /// <param name="rows"></param>
                 /// <param name="cols"></param>
-                public EntityGrid2D(GridMode gridMode, IEnumerable<Entity> initialList, int rows, int cols) : this(gridMode, initialList, rows, cols, new float2(0, 0)) { }
-
-                /// <summary>
-                /// Creates a grid from a list with rows, columns, and cell size. Padding of 0x0.
-                /// </summary>
-                /// <param name="initialList"></param>
-                /// <param name="rows"></param>
-                /// <param name="cols"></param>
-                /// <param name="cellSize"></param>
-                public EntityGrid2D(GridMode gridMode, IEnumerable<Entity> initialList, int rows, int cols, float2 cellSize) : this(gridMode, initialList, rows, cols, cellSize, new float2(0, 0)) { }
+                public EntityGrid2D(GridMode gridMode, IEnumerable<Entity> initialList, int rows, int cols) : this(gridMode, initialList, rows, cols, new float2(1, 1)) { }
 
                 /// <summary>
                 /// Creates a grid from a list with rows, columns, cell size, and padding.
@@ -89,22 +64,9 @@ namespace UnityUtilities {
                 /// <param name="rows"></param>
                 /// <param name="cols"></param>
                 /// <param name="cellSize"></param>
-                /// <param name="padding"></param>
-                public EntityGrid2D(GridMode gridMode, IEnumerable<Entity> initialList, int rows, int cols, float2 cellSize, float2 padding) : base(initialList, rows, cols) {
+                public EntityGrid2D(GridMode gridMode, IEnumerable<Entity> initialList, int rows, int cols, float2 cellSize) : base(initialList, rows, cols) {
                     CellSize = cellSize;
-                    Padding = padding;
                     RenderMode = gridMode;
-
-                    if (CellSize.x == 0f && CellSize.y == 0f && Count > 0) {
-                        Entity item = base[0];
-                        float3 center = manager.GetComponentData<WorldRenderBounds>(item).Value.Center;
-                        float2 newCellSize = new float2(center.x * 2f, center.y * 2f);
-                        if (RenderMode == GridMode.Mode3D) {
-                            newCellSize.y = center.z * 2f;
-                        }
-                        CellSize = newCellSize;
-                    }
-
                     UpdateGridItems();
                 }
 
@@ -112,7 +74,7 @@ namespace UnityUtilities {
                 /// Add an item to the grid and position it accordingly.
                 /// </summary>
                 /// <param name="item"></param>
-                public override void Add(Entity item) {
+                public new void Add(Entity item) {
                     base.Add(item);
                     ApplyUpdateComponent(item);
                 }
@@ -122,9 +84,8 @@ namespace UnityUtilities {
                 /// </summary>T
                 /// <param name="item"></param>
                 /// <returns></returns>
-                public override bool Remove(Entity item) {
+                public new bool Remove(Entity item) {
                     bool removed = base.Remove(item);
-
                     if (removed) {
                         UpdateGridItems();
                     }
@@ -137,15 +98,6 @@ namespace UnityUtilities {
                 /// <param name="cellSize"></param>
                 public void SetCellSize(float2 cellSize) {
                     CellSize = cellSize;
-                    UpdateGridItems();
-                }
-
-                /// <summary>
-                /// Set padding between each cell. Position of Entities are updated.
-                /// </summary>
-                /// <param name="padding"></param>
-                public void SetPadding(float2 padding) {
-                    Padding = padding;
                     UpdateGridItems();
                 }
 
@@ -168,7 +120,6 @@ namespace UnityUtilities {
                     Tuple<int, int> targetIndex = IndexOf2D(e);
                     manager.AddComponentData(e, new EntityTileNeedsUpdate {
                         CellSize = CellSize,
-                        Padding = Padding,
                         Rows = _rows,
                         Columns = _columns,
                         EntityIndex2D = new int2(targetIndex.Item1, targetIndex.Item2),
@@ -182,7 +133,6 @@ namespace UnityUtilities {
             /// </summary>
             public struct EntityTileNeedsUpdate : IComponentData {
                 public float2 CellSize;
-                public float2 Padding;
                 public int Rows;
                 public int Columns;
                 public int2 EntityIndex2D;
@@ -208,9 +158,9 @@ namespace UnityUtilities {
                     return Entities.ForEach((Entity gridTile, int entityInQueryIndex, ref Translation translation, in EntityTileNeedsUpdate needsUpdate) => {
                         float z = translation.Value.z;
                         float x = (needsUpdate.EntityIndex2D.y * needsUpdate.CellSize.x) -
-                            (((needsUpdate.Rows * needsUpdate.CellSize.x) + ((needsUpdate.Rows - 1) * needsUpdate.Padding.x)) / 2);
+                            (needsUpdate.Rows * needsUpdate.CellSize.x / 2);
                         float y = (-needsUpdate.EntityIndex2D.x * needsUpdate.CellSize.y) -
-                            (((needsUpdate.Columns * needsUpdate.CellSize.y) + ((needsUpdate.Columns - 1) * needsUpdate.Padding.y)) / 2);
+                            (needsUpdate.Columns * needsUpdate.CellSize.y / 2);
 
                         if (needsUpdate.RenderMode == GridMode.Mode3D) {
                             z = -y;

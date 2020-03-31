@@ -99,7 +99,7 @@ namespace UnityUtilities {
                 /// Add an item to the grid and position it accordingly.
                 /// </summary>
                 /// <param name="item"></param>
-                public override void Add(GameObject item) {
+                public new void Add(GameObject item) {
                     base.Add(item);
                     PositionItem(item);
                 }
@@ -109,7 +109,7 @@ namespace UnityUtilities {
                 /// </summary>
                 /// <param name="item"></param>
                 /// <returns></returns>
-                public override bool Remove(GameObject item) {
+                public new bool Remove(GameObject item) {
                     bool removed = base.Remove(item);
 
                     if (removed) {
