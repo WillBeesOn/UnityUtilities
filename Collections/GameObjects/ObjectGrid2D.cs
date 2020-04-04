@@ -21,11 +21,6 @@ namespace UnityUtilities {
                 /// </summary>
                 public Vector2 CellSize { get; private set; }
 
-                /// <summary>
-                /// The amount of space between each cell in Unity units.
-                /// </summary>
-                public Vector2 Padding { get; private set; }
-
                 private const int _pixelsPerUnit = 100;
 
                 /// <summary>
@@ -84,7 +79,6 @@ namespace UnityUtilities {
                 /// <param name="padding"></param>
                 public ObjectGrid2D(IEnumerable<GameObject> initialList, int rows, int cols, Vector2 cellSize, Vector2 padding) : base(initialList, rows, cols) {
                     CellSize = cellSize;
-                    Padding = padding;
 
                     if (CellSize == new Vector2(0, 0) && Count > 0) {
                         GameObject item = base[0];
@@ -128,15 +122,6 @@ namespace UnityUtilities {
                 }
 
                 /// <summary>
-                /// Set padding between each cell. Position of GameObjects are updated.
-                /// </summary>
-                /// <param name="padding"></param>
-                public void SetPadding(Vector2 padding) {
-                    Padding = padding;
-                    UpdateGridItems();
-                }
-
-                /// <summary>
                 /// Updates the position of each item in the grid.
                 /// </summary>
                 private void UpdateGridItems() {
@@ -152,8 +137,8 @@ namespace UnityUtilities {
                 private void PositionItem(GameObject item) {
                     Tuple<int, int> targetIndex = IndexOf2D(item);
 
-                    float x = (targetIndex.Item2 * CellSize.x) - (((_columns * CellSize.x) + ((_columns - 1) * Padding.x)) / 2);
-                    float y = (-targetIndex.Item1 * CellSize.y) - (((_rows * CellSize.y) + ((_rows - 1) * Padding.y)) / 2);
+                    float x = (targetIndex.Item2 * CellSize.x) - (_columns * CellSize.x / 2);
+                    float y = (-targetIndex.Item1 * CellSize.y) - (_rows * CellSize.y / 2);
 
                     item.transform.localPosition = new Vector3(x, y, item.transform.localPosition.z);
                 }
