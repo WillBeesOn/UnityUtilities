@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 namespace UnityUtilities {
@@ -53,6 +54,19 @@ namespace UnityUtilities {
             }
 
             return levelSceneIndices;
+        }
+
+        /// <summary>
+        /// Determines if mouse is over UI elements.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsMouseOverUI() {
+            PointerEventData pointerData = new PointerEventData(EventSystem.current) {
+                position = new Vector2(Input.mousePosition.x, Input.mousePosition.y)
+            };
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+            return results.Count > 0;
         }
     }
 }
