@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace UnityUtilities {
@@ -13,7 +14,7 @@ namespace UnityUtilities {
         /// <returns></returns>
         public static GameObject Raycast(Ray r) {
             RaycastHit hit = new RaycastHit();
-            if (Physics.Raycast(r, out hit) && !Utils.IsMouseOverUI()) {
+            if (Physics.Raycast(r, out hit) && !IsMouseOverUI()) {
                 return hit.transform.gameObject;
             }
             return default;
