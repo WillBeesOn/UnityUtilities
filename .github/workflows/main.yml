@@ -32,13 +32,6 @@ jobs:
         csc -target:library -out:./build/UnityUtilities.FileSystem.dll -reference:./lib/2019.3.6f1/UnityEngine.dll ./FileSystem/*.cs
         csc -target:library -out:./build/UnityUtilities.Random.dll -reference:./lib/2019.3.6f1/UnityEngine.dll ./Random/*.cs
         csc -target:library -out:./build/UnityUtilities.Collections.dll -reference:./lib/2019.3.6f1/UnityEngine.dll,./lib/Mathematics/4-16-2020/Unity.Mathematics.dll,./build/UnityUtilities.Random.dll ./Collections/*.cs ./Collections/Generic/*.cs
-        
-    - name: Easy Zip Files
-      uses: papeloto/action-zip@v1
-      with:
-        # Files or directories to zip
-        files: ./build
-        dest: UnityUtilites.zip 
       
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
@@ -46,4 +39,4 @@ jobs:
         # Artifact name
         name: UnityUtilities.zip
         # Directory containing files to upload
-        path: .
+        path: ./build
