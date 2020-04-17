@@ -33,10 +33,14 @@ jobs:
         csc -target:library -out:./build/UnityUtilities.Random.dll -reference:./lib/2019.3.6f1/UnityEngine.dll ./Random/*.cs
         csc -target:library -out:./build/UnityUtilities.Collections.dll -reference:./lib/2019.3.6f1/UnityEngine.dll,./lib/Mathematics/4-16-2020/Unity.Mathematics.dll,./build/UnityUtilities.Random.dll ./Collections/*.cs ./Collections/Generic/*.cs
       
+    - name: What's in build
+      run : |
+        cd build
+        dir  
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
-        name: UnityUtilities.zip
+        name: UnityUtilities
         # Directory containing files to upload
         path: ./build
