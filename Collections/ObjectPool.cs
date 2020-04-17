@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace UnityUtilities {
     namespace Collections {
-
         /// <summary>
         /// A collection of pre-instantiated GameObjects to be used when needed.
         /// </summary>

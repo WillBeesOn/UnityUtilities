@@ -1,40 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
 using UnityUtilities.Collections.Generic;
 
 namespace UnityUtilities {
     namespace Collections {
-
-        //TODO Add animation options when grid is updated. 
+        // TODO Add animation options when grid is updated.
+        // Support GridMode. Look at ObjectGrid2D for implementation.
+        // Needs testing.
 
         /// <summary>
-        /// A list of GameObjects that are arranged in a 2D grid. Handles positioning and updating GameObjects in the grid when cell size or padding are updated.
+        /// A list of GameObjects that are arranged in a 2D grid.
+        /// Handles positioning and updating GameObjects in the grid when
+        /// ell size or padding are updated.
         /// </summary>
         public class ObjectGrid2D : List2D<GameObject> {
             /// <summary>
-            /// How large each cell of the grid is in Unity units.
+            /// How large each cell of the grid is in Unity units. Readonly.
             /// </summary>
-            public Vector2 CellSize { get; private set; }
+            public float2 CellSize { get; private set; }
 
-            /// <summary>
-            /// The amount of space between each cell in Unity units.
-            /// </summary>
-            public Vector2 Padding { get; private set; }
+            public GridMode RenderMode { get; private set; }
 
             private const int _pixelsPerUnit = 100;
 
             /// <summary>
             /// Creates a 1x1 grid with cell size and padding of 0x0.
             /// </summary>
-            public ObjectGrid2D() : this(1, 1) { }
+            public ObjectGrid2D(GridMode gridMode) : this(gridMode, 1, 1) { }
 
             /// <summary>
             /// Creates a grid with rows and columns. Cell size and padding of 0x0.
             /// </summary>
             /// <param name="rows"></param>
             /// <param name="cols"></param>
-            public ObjectGrid2D(int rows, int cols) : this(rows, cols, new Vector2(0, 0)) { }
+            public ObjectGrid2D(GridMode gridMode, int rows, int cols) : this(gridMode, rows, cols, new float2(1, 1)) { }
 
             /// <summary>
             /// Creates a grid with rows, columns, and cell size. Padding of 0x0.
@@ -42,16 +43,7 @@ namespace UnityUtilities {
             /// <param name="rows"></param>
             /// <param name="cols"></param>
             /// <param name="cellSize"></param>
-            public ObjectGrid2D(int rows, int cols, Vector2 cellSize) : this(rows, cols, cellSize, new Vector2(0, 0)) { }
-
-            /// <summary>
-            /// Creates a grid with rows, columns, cell size, and padding.
-            /// </summary>
-            /// <param name="rows"></param>
-            /// <param name="cols"></param>
-            /// <param name="cellSize"></param>
-            /// <param name="padding"></param>
-            public ObjectGrid2D(int rows, int cols, Vector2 cellSize, Vector2 padding) : this(new List<GameObject>(), rows, cols, cellSize, padding) { }
+            public ObjectGrid2D(GridMode gridMode, int rows, int cols, float2 cellSize) : this(gridMode, new List<GameObject>(), rows, cols, cellSize) { }
 
             /// <summary>
             /// Creates a grid from a list with rows and columns. Cell size and padding of 0x0.
@@ -59,16 +51,7 @@ namespace UnityUtilities {
             /// <param name="initialList"></param>
             /// <param name="rows"></param>
             /// <param name="cols"></param>
-            public ObjectGrid2D(IEnumerable<GameObject> initialList, int rows, int cols) : this(initialList, rows, cols, new Vector2(0, 0)) { }
-
-            /// <summary>
-            /// Creates a grid from a list with rows, columns, and cell size. Padding of 0x0.
-            /// </summary>
-            /// <param name="initialList"></param>
-            /// <param name="rows"></param>
-            /// <param name="cols"></param>
-            /// <param name="cellSize"></param>
-            public ObjectGrid2D(IEnumerable<GameObject> initialList, int rows, int cols, Vector2 cellSize) : this(initialList, rows, cols, cellSize, new Vector2(0, 0)) { }
+            public ObjectGrid2D(GridMode gridMode, IEnumerable<GameObject> initialList, int rows, int cols) : this(gridMode, initialList, rows, cols, new float2(1, 1)) { }
 
             /// <summary>
             /// Creates a grid from a list with rows, columns, cell size, and padding.
@@ -77,22 +60,17 @@ namespace UnityUtilities {
             /// <param name="rows"></param>
             /// <param name="cols"></param>
             /// <param name="cellSize"></param>
-            /// <param name="padding"></param>
-            public ObjectGrid2D(IEnumerable<GameObject> initialList, int rows, int cols, Vector2 cellSize, Vector2 padding) : base(initialList, rows, cols) {
+            public ObjectGrid2D(GridMode gridMode, IEnumerable<GameObject> initialList, int rows, int cols, float2 cellSize) : base(initialList, rows, cols) {
                 CellSize = cellSize;
-                Padding = padding;
+                RenderMode = gridMode;
+                UpdateGridItems();
             }
 
             /// <summary>
             /// Add an item to the grid and position it accordingly.
             /// </summary>
             /// <param name="item"></param>
-            public override void Add(GameObject item) {
-                if (CellSize == new Vector2(0, 0)) {
-                    float x = item.GetComponent<SpriteRenderer>().sprite.rect.width / _pixelsPerUnit;
-                    float y = item.GetComponent<SpriteRenderer>().sprite.rect.height / _pixelsPerUnit;
-                    CellSize = new Vector2(x, y);
-                }
+            public new void Add(GameObject item) {
                 base.Add(item);
                 PositionItem(item);
             }
@@ -102,10 +80,10 @@ namespace UnityUtilities {
             /// </summary>
             /// <param name="item"></param>
             /// <returns></returns>
-            public override bool Remove(GameObject item) {
+            public new bool Remove(GameObject item) {
                 bool removed = base.Remove(item);
 
-                if(removed) {
+                if (removed) {
                     UpdateGridItems();
                 }
                 return removed;
@@ -121,19 +99,10 @@ namespace UnityUtilities {
             }
 
             /// <summary>
-            /// Set padding between each cell. Position of GameObjects are updated.
-            /// </summary>
-            /// <param name="padding"></param>
-            public void SetPadding(Vector2 padding) {
-                Padding = padding;
-                UpdateGridItems();
-            }
-
-            /// <summary>
             /// Updates the position of each item in the grid.
             /// </summary>
             private void UpdateGridItems() {
-                foreach(GameObject g in this) {
+                foreach (GameObject g in this) {
                     PositionItem(g);
                 }
             }
@@ -145,10 +114,17 @@ namespace UnityUtilities {
             private void PositionItem(GameObject item) {
                 Tuple<int, int> targetIndex = IndexOf2D(item);
 
-                float x = (targetIndex.Item2 * CellSize.x) - (((_columns * CellSize.x) + ((_columns - 1) * Padding.x)) / 2);
-                float y = (-targetIndex.Item1 * CellSize.y) - (((_rows * CellSize.y) + ((_rows - 1) * Padding.y)) / 2);
+                float z = item.transform.localPosition.z;
+                float x = (targetIndex.Item2 * CellSize.x) - (_columns * CellSize.x / 2);
+                float y = (-targetIndex.Item1 * CellSize.y) - (_rows * CellSize.y / 2);
 
-                item.transform.localPosition = new Vector3(x, y, item.transform.localPosition.z);
+
+                if (RenderMode == GridMode.Mode3D) {
+                    z = -y;
+                    y = item.transform.localPosition.y;
+                }
+
+                item.transform.localPosition = new Vector3(x, y, z);
             }
         }
     }

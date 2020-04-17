@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace UnityUtilities {
@@ -10,13 +9,9 @@ namespace UnityUtilities {
             /// A 1D representation of a 2D list.
             /// </summary>
             /// <typeparam name="T"></typeparam>
-            public class List2D<T> : IList<T> {
+            public class List2D<T> : List<T> {
 
-                public T this[int index] { get => _list[index]; set => _list[index] = value; }
-                public int Count => _list.Count;
                 public bool IsReadOnly => false;
-
-                private List<T> _list;
                 protected int _columns;
                 protected int _rows;
 
@@ -38,18 +33,9 @@ namespace UnityUtilities {
                 /// <param name="initialList"></param>
                 /// <param name="rows"></param>
                 /// <param name="columns"></param>
-                public List2D(IEnumerable<T> initialList, int rows, int columns) {
-                    _list = new List<T>(initialList);
+                public List2D(IEnumerable<T> initialList, int rows, int columns) : base(initialList) {
                     _rows = rows;
                     _columns = columns;
-                }
-
-                /// <summary>
-                /// Add item to the list.
-                /// </summary>
-                /// <param name="item"></param>
-                public virtual void Add(T item) {
-                    _list.Add(item);
                 }
 
                 /// <summary>
@@ -63,40 +49,7 @@ namespace UnityUtilities {
                 }
 
                 /// <summary>
-                /// Remove all elements from list.
-                /// </summary>
-                public virtual void Clear() {
-                    _list.Clear();
-                }
-
-                /// <summary>
-                /// Determines if item is in the list.
-                /// </summary>
-                /// <param name="item"></param>
-                /// <returns></returns>
-                public virtual bool Contains(T item) {
-                    return _list.Contains(item);
-                }
-
-                /// <summary>
-                /// Copies the entire list into the front of an array.
-                /// </summary>
-                /// <param name="array"></param>
-                public virtual void CopyTo(T[] array) {
-                    CopyTo(array, 0);
-                }
-
-                /// <summary>
-                /// Copies the entire list into an array at a given index.
-                /// </summary>
-                /// <param name="array"></param>
-                /// <param name="arrayInsertIndex"></param>
-                public virtual void CopyTo(T[] array, int arrayInsertIndex) {
-                    _list.CopyTo(array, arrayInsertIndex);
-                }
-
-                /// <summary>
-                /// Inserts es a range of elements from the list `into the front of an array.
+                /// Inserts a range of elements from the list `into the front of an array.
                 /// </summary>
                 /// <param name="array"></param>
                 /// <param name="start"></param>
@@ -113,7 +66,7 @@ namespace UnityUtilities {
                 /// <param name="start"></param>
                 /// <param name="count"></param>
                 public virtual void CopyRange(T[] array, int arrayInsertIndex, int start, int count) {
-                    _list.CopyTo(start, array, arrayInsertIndex, count);
+                    CopyTo(start, array, arrayInsertIndex, count);
                 }
 
                 /// <summary>
@@ -138,7 +91,7 @@ namespace UnityUtilities {
                             if (currentListElement >= Count) {
                                 return;
                             }
-                            array[i][j] = _list[currentListElement];
+                            array[i][j] = base[currentListElement];
                             ++currentListElement;
                         }
                         colInsertIndex = 0;
@@ -171,25 +124,12 @@ namespace UnityUtilities {
                             if (currentListElement >= Count || count == 0) {
                                 return;
                             }
-                            array[i][j] = _list[currentListElement];
+                            array[i][j] = base[currentListElement];
                             ++currentListElement;
                             --count;
                         }
                         colInsertIndex = 0;
                     }
-                }
-
-                public IEnumerator<T> GetEnumerator() {
-                    return _list.GetEnumerator();
-                }
-
-                /// <summary>
-                /// Get 1D index of item.
-                /// </summary>
-                /// <param name="item"></param>
-                /// <returns></returns>
-                public virtual int IndexOf(T item) {
-                    return _list.IndexOf(item);
                 }
 
                 /// <summary>
@@ -198,19 +138,10 @@ namespace UnityUtilities {
                 /// <param name="item"></param>
                 /// <returns></returns>
                 public virtual Tuple<int, int> IndexOf2D(T item) {
-                    int targetIndex = _list.IndexOf(item);
+                    int targetIndex = IndexOf(item);
                     return new Tuple<int, int>(
                         (int)Math.Floor((double)(targetIndex / _columns)),
                         targetIndex % _columns);
-                }
-
-                /// <summary>
-                /// Inserts item at index.
-                /// </summary>
-                /// <param name="index"></param>
-                /// <param name="item"></param>
-                public virtual void Insert(int index, T item) {
-                    _list.Insert(index, item);
                 }
 
                 /// <summary>
@@ -220,24 +151,7 @@ namespace UnityUtilities {
                 /// <param name="col"></param>
                 /// <param name="item"></param>
                 public virtual void Insert2D(int row, int col, T item) {
-                    _list.Insert(row * _columns + col, item);
-                }
-
-                /// <summary>
-                /// Removes item from list.
-                /// </summary>
-                /// <param name="item"></param>
-                /// <returns></returns>
-                public virtual bool Remove(T item) {
-                    return _list.Remove(item);
-                }
-
-                /// <summary>
-                /// Removes item at index.
-                /// </summary>
-                /// <param name="index"></param>
-                public virtual void RemoveAt(int index) {
-                    _list.RemoveAt(index);
+                    Insert(row * _columns + col, item);
                 }
 
                 /// <summary>
@@ -246,16 +160,7 @@ namespace UnityUtilities {
                 /// <param name="row"></param>
                 /// <param name="col"></param>
                 public virtual void RemoveAt2D(int row, int col) {
-                    _list.RemoveAt(row * _columns + col);
-                }
-
-                /// <summary>
-                /// Removes range of elements at specified index from list.
-                /// </summary>
-                /// <param name="index"></param>
-                /// <param name="count"></param>
-                public virtual void RemoveRange(int index, int count) {
-                    _list.RemoveRange(index, count);
+                    RemoveAt(row * _columns + col);
                 }
 
                 /// <summary>
@@ -265,15 +170,7 @@ namespace UnityUtilities {
                 /// <param name="col"></param>
                 /// <param name="count"></param>
                 public virtual void RemoveRange2D(int row, int col, int count) {
-                    _list.RemoveRange(row * _columns + col, count);
-                }
-
-                /// <summary>
-                /// Returns an enumerator in index order that can be used to iterate over the list.
-                /// </summary>
-                /// <returns>IEnumerator</returns>
-                IEnumerator IEnumerable.GetEnumerator() {
-                    return _list.GetEnumerator();
+                    RemoveRange(row * _columns + col, count);
                 }
             }
         }
