@@ -7,8 +7,6 @@ name: Build
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -27,15 +25,24 @@ jobs:
       uses: yoavain/Setup-CSC@v5
     
     # Builds source into DLL.
-    - name: Build DLL
+    - name: Build dlls
       run: |
         mkdir build
-        csc -target:library -out:./build/UnityUtilities.dll -reference:./lib/2019.3.6f1/UnityEngine.dll *.cs ./FileSystem/*.cs ./Collections/*.cs ./Collections/Generic/*.cs
+        csc -target:library -out:./build/UnityUtilities.dll -reference:./lib/2019.3.6f1/UnityEngine.dll ./Basic/*.cs
+        csc -target:library -out:./build/UnityUtilities.FileSystem.dll -reference:./lib/2019.3.6f1/UnityEngine.dll ./FileSystem/*.cs
+        csc -target:library -out:./build/UnityUtilities.Random.dll -reference:./lib/2019.3.6f1/UnityEngine.dll ./Random/*.cs
+        csc -target:library -out:./build/UnityUtilities.Collections.dll -reference:./lib/2019.3.6f1/UnityEngine.dll,./lib/Mathematics/4-16-2020/Unity.Mathematics.dll,./build/UnityUtilities.Random.dll ./Collections/*.cs ./Collections/Generic/*.cs
 
+    - name: Zip Release
+      uses: TheDoctor0/zip-release@v0.3.0
+      with:
+        filename: 'UnityUtilities.zip'
+        directory: ./build
+      
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
-        name: UnityUtilities.dll
+        name: UnityUtilities.zip
         # Directory containing files to upload
-        path: ./build
+        path: .
