@@ -93,7 +93,7 @@ namespace UnityUtilities {
             /// Set the size each cell in the grid should be. Position of GameObjects are updated.
             /// </summary>
             /// <param name="cellSize"></param>
-            public void SetCellSize(Vector2 cellSize) {
+            public void SetCellSize(float2 cellSize) {
                 CellSize = cellSize;
                 UpdateGridItems();
             }
