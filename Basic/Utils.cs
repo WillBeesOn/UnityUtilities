@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -53,6 +54,29 @@ namespace UnityUtilities {
             }
 
             return levelSceneIndices;
+        }
+
+        /// <summary>
+        /// Gets all children of a GameObject with a given tag.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="tag"></param>
+        /// <returns></returns>
+        public static GameObject[] GetChildrenWithTag(GameObject parent, string tag) {
+            return (from child in GetAllChildren(parent)
+                    where child.CompareTag(tag)
+                    select child).ToArray();
+        }
+
+        /// <summary>
+        /// Gets all children of a GameObject.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static GameObject[] GetAllChildren(GameObject parent) {
+            return (from transform in parent.GetComponentsInChildren<Transform>()
+                    where transform
+                    select transform.gameObject).ToArray();
         }
     }
 }
