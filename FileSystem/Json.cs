@@ -25,7 +25,6 @@ namespace UnityUtilities {
             /// <param name="filePath">Absolute path at which to save file.</param>
             /// <param name="data">Object to be serialized into JSON.</param>
             public static void Serialize<T>(string filePath, T data) {
-                Debug.Log(JsonUtility.ToJson(data));
                 FileHelper.SaveTextFile(filePath, JsonUtility.ToJson(data));
             }
         }
