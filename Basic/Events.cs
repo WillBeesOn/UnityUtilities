@@ -2,120 +2,76 @@
 using System.Collections.Generic;
 
 namespace UnityUtilities {
-    /// <summary>
-    /// Mange dispatching and subscribing to events.
-    /// </summary>
-    public static class Events {
+	/// <summary>
+	/// Mange dispatching and subscribing to events using callbacks without arguments.
+	/// </summary>
+	public static class Events {
+		private static readonly Dictionary<string, List<Action>> _callbacks = new Dictionary<string, List<Action>>();
 
-        /// <summary>
-        /// A collection of all events that have been subscribed to or have been
-        /// dispatched.
-        /// </summary>
-        private static readonly Dictionary<string, EventData> allEvents = new Dictionary<string, EventData>();
+		public static void Dispatch(string eventName) {
+			if (!_callbacks.TryGetValue(eventName, out var list)) {
+				return;
+			}
 
-        /// <summary>
-        /// Delegate to be called when event is triggered.
-        /// </summary>
-        /// <param name="args"></param>
-        public delegate void EventCallback(EventArgs args);
+			foreach (var func in list) {
+				func();
+			}
+		}
 
-        /// <summary>
-        /// Contains the event handler that will dispatch an event. Also records
-        /// the number of subscribers, adds, and removes them.
-        /// </summary>
-        private class EventData {
-            public int numOfSubscribers;
-            public event EventCallback Handler;
+		public static void Subscribe(string eventName, Action callbackFn) {
+			var eventPublished = _callbacks.TryGetValue(eventName, out var list);
+			if (eventPublished && list.Contains(callbackFn)) {
+				return;
+			}
 
-            public void AddSubscriber(EventCallback callbackFn) {
-                numOfSubscribers++;
-                Handler += callbackFn;
-            }
+			if (!eventPublished) {
+				_callbacks.Add(eventName, new List<Action> {callbackFn});
+			} else if (!list.Contains(callbackFn)) {
+				list.Add(callbackFn);
+			}
+		}
 
-            public void RemoveSubscriber(EventCallback callbackFn) {
-                numOfSubscribers--;
-                Handler -= callbackFn;
-            }
+		public static void Unsubscribe(string eventName, Action callbackFn) {
+			if (!_callbacks.TryGetValue(eventName, out var list) || !list.Contains(callbackFn)) {
+				return;
+			}
+			list.Remove(callbackFn);
+		}
 
-            public bool Dispatch(EventArgs args) {
-                EventCallback h = Handler;
-                if (h != null) {
-                    h(args);
-                    return true;
-                }
-                return false;
-            }
-        }
+		public static void Clear(string eventName) {
+			if (!_callbacks.ContainsKey(eventName)) {
+				return;
+			}
+			_callbacks.Remove(eventName);
+		}
+	}
 
-        /// <summary>
-        /// Remove event from list of published events.
-        /// </summary>
-        /// <param name="eventName"></param>
-        /// <returns></returns>
-        public static bool Unpublish(string eventName) {
-            if (allEvents.ContainsKey(eventName)) {
-                allEvents.Remove(eventName);
-                return true;
-            }
-            return false;
-        }
+	/// <summary>
+	/// Mange dispatching and subscribing to events using callbacks with arguments.
+	/// </summary>
+	public static class Events<T> {
+		private static readonly List<Action<T>> _callbacks = new List<Action<T>>();
 
-        /// <summary>
-        /// Dispatches the event to any subscribers. EventPublisher may only
-        /// dispatch events that it has published itself.
-        /// </summary>
-        /// <param name="eventName"></param>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public static bool Dispatch(string eventName, EventArgs args) {
-            if (allEvents.ContainsKey(eventName) || Publish(eventName)) {
-                return allEvents[eventName].Dispatch(args);
-            }
-            return false;
-        }
+		public static void Dispatch(T args) {
+			foreach (var func in _callbacks) {
+				func(args);
+			}
+		}
 
-        /// <summary>
-        /// Subscribes the given function to the event. The function will be
-        /// called whenever the event is dispatched. A single event may only
-        /// be subscribed to by one function.
-        /// </summary>
-        /// <param name="eventName"></param>
-        /// <param name="callbackFn"></param>
-        /// <returns></returns>
-        public static bool Subscribe(string eventName, EventCallback callbackFn) {
-            if (allEvents.ContainsKey(eventName) || Publish(eventName)) {
-                allEvents[eventName].AddSubscriber(callbackFn);
-                return true;
-            }
-            return false;
-        }
+		public static void Subscribe(Action<T> callbackFn) {
+			if (_callbacks.Contains(callbackFn)) {
+				return;
+			}
 
-        /// <summary>
-        /// Stops the function bound to the given event from being called
-        /// when the event is dispatched.
-        /// </summary>
-        /// <param name="eventName"></param>
-        /// <returns></returns>
-        public static bool Unsubscribe(string eventName, EventCallback callbackFn) {
-            if (allEvents.ContainsKey(eventName)) {
-                allEvents[eventName].RemoveSubscriber(callbackFn);
-                return true;
-            }
-            return false;
-        }
+			_callbacks.Add(callbackFn);
+		}
 
-        /// <summary>
-        /// Creates an event if it doesn't exist. If it does exist, doesn't do
-        /// anything.
-        /// </summary>
-        /// <param name="eventName"></param>
-        /// <returns></returns>
-        private static bool Publish(string eventName) {
-            if (!allEvents.ContainsKey(eventName)) {
-                allEvents.Add(eventName, new EventData());
-                return true;
-            }
-            return false;
-        }
-    }
+		public static void Unsubscribe(Action<T> callbackFn) {
+			_callbacks.Remove(callbackFn);
+		}
+
+		public static void Clear() {
+			_callbacks.Clear();
+		}
+	}
 }
