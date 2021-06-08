@@ -1,18 +1,11 @@
 namespace UnityUtilities.Random {
-	public class Dice {
-		private int _faces;
-		public Dice(int faces) {
-			_faces = faces;
-		}
-		public int Roll() {
+	public static class Dice {
+		public static Roll(int faces, int numDice = 1) {
 			var random = new System.Random();
-			return random.Next(1, _faces);
-		}
 
-		public int Roll(int numDice) {
 			var total = 0;
 			for (var i = 0; i < numDice; i++) {
-				total += Roll();
+				total += random.Next(1, faces);
 			}
 
 			return total;
