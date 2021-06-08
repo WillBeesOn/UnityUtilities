@@ -1,178 +1,102 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Mathematics;
+using UnityEngine;
 
-namespace UnityUtilities {
-    namespace Collections {
-        namespace Generic {
+namespace UnityUtilities.Collections.Generic {
 
-            /// <summary>
-            /// A 1D representation of a 2D list.
-            /// </summary>
-            /// <typeparam name="T"></typeparam>
-            public class List2D<T> : List<T> {
+	public class List2D<T> : List<T> {
+		public int width { get; private set; }
+		public int height { get; private set; }
+		
+		public List2D() : this(0, 0) { }
+		
+		public List2D(int x, int y) : this(new List<T>(new T[x * y]), x, y) { }
+		
+		public List2D(IEnumerable<T> initialList, int x, int y) : base(initialList) {
+			width = x;
+			height = y;
+		}
+		
+		public T Get(int x, int y) {
+			return !IsOutOfBounds(x, y) ? this[y * width + x] : default;
+		}
 
-                public bool IsReadOnly => false;
-                protected int _columns;
-                protected int _rows;
+		public virtual void Insert(int x, int y, T item) {
+			if (!IsOutOfBounds(x ,y)) {
+				Insert(y * width + x, item);
+			}
+		}
 
-                /// <summary>
-                /// Create an empty 2D 0 by 0 list
-                /// </summary>
-                public List2D() : this(0, 0) { }
+		public virtual void Remove(int x, int y) {
+			if (!IsOutOfBounds(x ,y)) {
+				RemoveAt(y * width + x);
+			}
+		}
+		
+		public void IndexOf(T item, out int x, out int y) {
+			var targetIndex = IndexOf(item);
+			x = targetIndex % width;
+			y = Mathf.FloorToInt(targetIndex / width);
+		}
 
-                /// <summary>
-                /// Create a 2D list with a number of rows and columns.
-                /// </summary>
-                /// <param name="rows"></param>
-                /// <param name="columns"></param>
-                public List2D(int rows, int columns) : this(new List<T>(columns * rows), columns, rows) { }
+		public void CopyRange(T[] array, int start, int count) {
+			CopyRange(array, 0, start, count);
+		}
+		
+		public void CopyRange(T[] array, int arrayInsertIndex, int start, int count) {
+			CopyTo(start, array, arrayInsertIndex, count);
+		}
+		
+		public virtual void CopyTo2D(T[][] array) {
+			CopyTo2D(array, 0, 0);
+		}
+		
+		public virtual void CopyTo2D(T[][] array, int rowInsertIndex, int colInsertIndex) {
+			int currentListElement = 0;
 
-                /// <summary>
-                /// Create a 2D rows by columns list from an initial list.
-                /// </summary>
-                /// <param name="initialList"></param>
-                /// <param name="rows"></param>
-                /// <param name="columns"></param>
-                public List2D(IEnumerable<T> initialList, int rows, int columns) : base(initialList) {
-                    _rows = rows;
-                    _columns = columns;
-                }
+			for (int i = rowInsertIndex; i < array.Length; ++i) {
+				for (int j = colInsertIndex; j < array[i].Length; ++j) {
+					if (currentListElement >= Count) {
+						return;
+					}
 
-                /// <summary>
-                /// Set rows and columns of the list.
-                /// </summary>
-                /// <param name="rows"></param>
-                /// <param name="columns"></param>
-                public virtual void SetDimensions(int rows, int columns) {
-                    _rows = rows;
-                    _columns = columns;
-                }
+					array[i][j] = base[currentListElement];
+					++currentListElement;
+				}
 
-                /// <summary>
-                /// Inserts a range of elements from the list `into the front of an array.
-                /// </summary>
-                /// <param name="array"></param>
-                /// <param name="start"></param>
-                /// <param name="count"></param>
-                public virtual void CopyRange(T[] array, int start, int count) {
-                    CopyRange(array, 0, start, count);
-                }
+				colInsertIndex = 0;
+			}
+		}
+		
+		public virtual void CopyRange2D(T[][] array, int rowStartIndex, int colStartIndex, int count) {
+			CopyRange2D(array, rowStartIndex, colStartIndex, count, 0, 0);
+		}
+		
+		public virtual void CopyRange2D(T[][] array, int rowStartIndex, int colStartIndex, int count, int rowInsertIndex, int colInsertIndex) {
+			int currentListElement = rowStartIndex * width + colStartIndex;
 
-                /// <summary>
-                /// Inserts a range of elements from the list into an array at a given index.
-                /// </summary>
-                /// <param name="array"></param>
-                /// <param name="arrayInsertIndex"></param>
-                /// <param name="start"></param>
-                /// <param name="count"></param>
-                public virtual void CopyRange(T[] array, int arrayInsertIndex, int start, int count) {
-                    CopyTo(start, array, arrayInsertIndex, count);
-                }
+			for (int i = rowInsertIndex; i < array.Length; ++i) {
+				for (int j = colInsertIndex; j < array[i].Length; ++j) {
+					if (currentListElement >= Count || count == 0) {
+						return;
+					}
 
-                /// <summary>
-                /// Copies the entire list into the front of a 2D array.
-                /// </summary>
-                /// <param name="array"></param>
-                public virtual void CopyTo2D(T[][] array) {
-                    CopyTo2D(array, 0, 0);
-                }
+					array[i][j] = base[currentListElement];
+					++currentListElement;
+					--count;
+				}
 
-                /// <summary>
-                /// Inserts the entire list into a 2D array at a given index.
-                /// </summary>
-                /// <param name="array"></param>
-                /// <param name="rowInsertIndex"></param>
-                /// <param name="colInsertIndex"></param>
-                public virtual void CopyTo2D(T[][] array, int rowInsertIndex, int colInsertIndex) {
-                    int currentListElement = 0;
+				colInsertIndex = 0;
+			}
+		}
 
-                    for (int i = rowInsertIndex; i < array.Length; ++i) {
-                        for (int j = colInsertIndex; j < array[i].Length; ++j) {
-                            if (currentListElement >= Count) {
-                                return;
-                            }
-                            array[i][j] = base[currentListElement];
-                            ++currentListElement;
-                        }
-                        colInsertIndex = 0;
-                    }
-                }
-
-                /// <summary>
-                /// Inserts a range of elements from the list into the front of a 2D array.
-                /// </summary>
-                /// <param name="array"></param>
-                /// <param name="rowStartIndex"></param>
-                /// <param name="colStartIndex"></param>
-                public virtual void CopyRange2D(T[][] array, int rowStartIndex, int colStartIndex, int count) {
-                    CopyRange2D(array, rowStartIndex, colStartIndex, count, 0, 0);
-                }
-
-                /// <summary>
-                /// Inserts a range of elements from the list into a 2D array at a given index.
-                /// </summary>
-                /// <param name="array"></param>
-                /// <param name="rowStartIndex"></param>
-                /// <param name="colStartIndex"></param>
-                /// <param name="rowInsertIndex"></param>
-                /// <param name="colInsertIndex"></param>
-                public virtual void CopyRange2D(T[][] array, int rowStartIndex, int colStartIndex, int count, int rowInsertIndex, int colInsertIndex) {
-                    int currentListElement = rowStartIndex * _columns + colStartIndex;
-
-                    for (int i = rowInsertIndex; i < array.Length; ++i) {
-                        for (int j = colInsertIndex; j < array[i].Length; ++j) {
-                            if (currentListElement >= Count || count == 0) {
-                                return;
-                            }
-                            array[i][j] = base[currentListElement];
-                            ++currentListElement;
-                            --count;
-                        }
-                        colInsertIndex = 0;
-                    }
-                }
-
-                /// <summary>
-                /// Get 2D index of item (row, column).
-                /// </summary>
-                /// <param name="item"></param>
-                /// <returns></returns>
-                public virtual Tuple<int, int> IndexOf2D(T item) {
-                    int targetIndex = IndexOf(item);
-                    return new Tuple<int, int>(
-                        (int)Math.Floor((double)(targetIndex / _columns)),
-                        targetIndex % _columns);
-                }
-
-                /// <summary>
-                /// Inserts item at specified row and column.
-                /// </summary>
-                /// <param name="row"></param>
-                /// <param name="col"></param>
-                /// <param name="item"></param>
-                public virtual void Insert2D(int row, int col, T item) {
-                    Insert(row * _columns + col, item);
-                }
-
-                /// <summary>
-                /// Removes item at specified row and column.
-                /// </summary>
-                /// <param name="row"></param>
-                /// <param name="col"></param>
-                public virtual void RemoveAt2D(int row, int col) {
-                    RemoveAt(row * _columns + col);
-                }
-
-                /// <summary>
-                /// Removes range of elements at specified row and column from list.
-                /// </summary>
-                /// <param name="row"></param>
-                /// <param name="col"></param>
-                /// <param name="count"></param>
-                public virtual void RemoveRange2D(int row, int col, int count) {
-                    RemoveRange(row * _columns + col, count);
-                }
-            }
-        }
-    }
+		public virtual void RemoveRange2D(int x, int y, int count) {
+			RemoveRange(y * width + x, count);
+		}
+		
+		protected bool IsOutOfBounds(int x, int y) {
+			return x > width - 1 || x < 0 || y > height - 1 || y < 0;
+		}
+	}
 }

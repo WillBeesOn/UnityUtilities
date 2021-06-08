@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace UnityUtilities {
         /// <param name="g">GameObject of which you want the name.</param>
         /// <returns>Formatted GameObject name.</returns>
         public static string TrimGameObjectName(GameObject g) {
-            string name = g.ToString();
+            var name = g.ToString();
             return name.Substring(0, name.IndexOf('(') - 1);
         }
 
@@ -28,7 +29,7 @@ namespace UnityUtilities {
         /// <param name="array">Array to test.</param>
         /// <returns>Boolean.</returns>
         public static bool IsArrayFull<T>(T[] array) {
-            foreach (T element in array) {
+            foreach (var element in array) {
                 if (element == null) {
                     return false;
                 }
@@ -42,11 +43,11 @@ namespace UnityUtilities {
         /// <param name="pattern">Pattern used to search for scenes.</param>
         /// <returns>List of scene indices.</returns>
         public static List<int> GetScenesBuildIndexByRegex(Regex pattern) {
-            List<int> levelSceneIndices = new List<int>();
+            var levelSceneIndices = new List<int>();
 
             for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++) {
-                string[] splitPath = SceneUtility.GetScenePathByBuildIndex(i).Split(new char[] { '/' });
-                string sceneName = splitPath[splitPath.Length - 1].ToLower();
+                var splitPath = SceneUtility.GetScenePathByBuildIndex(i).Split(new char[] { '/' });
+                var sceneName = splitPath[splitPath.Length - 1].ToLower();
 
                 if (pattern.IsMatch(sceneName)) {
                     levelSceneIndices.Add(i);
@@ -69,14 +70,44 @@ namespace UnityUtilities {
         }
 
         /// <summary>
-        /// Gets all children of a GameObject.
+        /// Gets all children of a GameObject, including nested children.
         /// </summary>
         /// <param name="parent"></param>
         /// <returns></returns>
-        public static GameObject[] GetAllChildren(GameObject parent) {
-            return (from transform in parent.GetComponentsInChildren<Transform>()
+        public static IEnumerable<GameObject> GetAllChildren(GameObject parent) {
+            return from transform in parent.GetComponentsInChildren<Transform>()
+                    where transform && transform != parent.transform
+                    select transform.gameObject;
+        }
+        
+        /// <summary>
+        /// Gets all children of a GameObject with component T, including nested children.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public static GameObject[] GetAllChildren<T>(GameObject parent) where T : Component {
+            return (from transform in parent.GetComponentsInChildren<T>()
                     where transform
                     select transform.gameObject).ToArray();
+        }
+
+        public static bool IsNumericType(object o) {
+            switch (Type.GetTypeCode(o.GetType())) {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;   
+            }
         }
     }
 }
