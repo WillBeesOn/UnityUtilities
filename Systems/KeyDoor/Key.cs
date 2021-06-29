@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace UnityUtilities.Systems {
+namespace UnityUtilities.Systems.KeyDoor {
 	public class Key : MonoBehaviour {
 		[Tooltip("Events to run when key is collected.")]
 		public UnityEvent onKeyCollect;

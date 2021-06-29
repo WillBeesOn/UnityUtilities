@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace UnityUtilities.Systems {
+namespace UnityUtilities.Systems.KeyDoor {
 	public enum KeyCollectionMethod {
 		OnCollision,
 		Custom

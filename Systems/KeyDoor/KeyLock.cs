@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace UnityUtilities.Systems {
+namespace UnityUtilities.Systems.KeyDoor {
 	public enum UnlockMethod {
 		OnHolderCollision,
 		OnKeyCollect,
