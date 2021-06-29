@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Mathematics;
 using UnityUtilities.Collections.Generic;
-using Object = System.Object;
 
 namespace UnityUtilities.Collections {
 

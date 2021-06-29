@@ -29,3 +29,6 @@ A collection of commonly used Unity/game concepts and functions I'm developing a
 ### 5. `Random`
 - `Dice`: Rolls a number of dice with a number of faces.
 - `Shuffle`: Randomizes the order of items in an array.
+
+### 6. `Systems`
+- `KeyDoor`: Open locked doors by collecting keys.

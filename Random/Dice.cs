@@ -1,6 +1,6 @@
 namespace UnityUtilities.Random {
 	public static class Dice {
-		public static Roll(int faces, int numDice = 1) {
+		public static int Roll(int faces, int numDice = 1) {
 			var random = new System.Random();
 
 			var total = 0;
