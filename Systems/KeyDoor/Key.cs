@@ -1,14 +1,22 @@
+using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace UnityUtilities.Systems.KeyDoor {
-	public class Key : MonoBehaviour {
-		[Tooltip("Events to run when key is collected.")]
-		public UnityEvent onKeyCollect;
+	public enum KeyCollectionMethod {
+		OnCollision,
+		Custom
+	}
 
-		[Tooltip("Should the key be removed upon use?")]
-		[SerializeField] private bool consumeOnUse;
+	public class Key : MonoBehaviour {
+		// Events to run when this Key gets collected by a KeyHolder.
+		public event Action<Key> OnKeyCollect;
+
+		[Tooltip("What triggers this Key to be obtained by a KeyHolder?")]
+		public KeyCollectionMethod keyCollectionMethod;
+
+		[Tooltip("Should the key be removed from KeyHolder upon use?")]
+		public bool consumeOnUse;
 
 		[Tooltip("Delay between obtaining the key and destroying the GameObject.")]
 		[SerializeField] private float destroyDelay;
@@ -22,8 +30,11 @@ namespace UnityUtilities.Systems.KeyDoor {
 		private int _onCollectedId;
 
 		public void KeyCollected(KeyHolder holder) {
-			onKeyCollect.Invoke();
+			OnKeyCollect?.Invoke(this);
+			if (_collider != null) _collider.enabled = false;
+			if (_collider2D != null) _collider.enabled = false;
 			PlayGetKeyAnimation();
+
 			StartCoroutine(DelayedDestroy(holder));
 		}
 
@@ -40,13 +51,7 @@ namespace UnityUtilities.Systems.KeyDoor {
 		}
 
 		private IEnumerator DelayedDestroy(KeyHolder holder) {
-			if (_collider != null) _collider.enabled = false;
-			if (_collider2D != null) _collider.enabled = false;
-			PlayGetKeyAnimation();
-
 			yield return new WaitForSeconds(destroyDelay);
-			gameObject.SetActive(false);
-			if (consumeOnUse) holder.RemoveKey(this);
 			Destroy(gameObject);
 		}
 	}

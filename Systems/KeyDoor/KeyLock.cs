@@ -1,6 +1,7 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace UnityUtilities.Systems.KeyDoor {
 	public enum UnlockMethod {
@@ -10,18 +11,19 @@ namespace UnityUtilities.Systems.KeyDoor {
 	};
 
 	public class KeyLock : MonoBehaviour {
+		//Events to run when the KeyHolder tries to open the door and key requirement is not met.
+		public event Action DoorLocked;
+
+		// Events to run when the door is unlocked.
+		public event Action OnDoorUnlocked;
+
+		public bool isUnlocked { get; private set; }
+
 		[Tooltip("How will the door unlock when the key is obtained?")]
 		public UnlockMethod unlockMethod;
 
 		[Tooltip("Key(s) needed to open the door.")]
 		[SerializeField] private List<Key> requiredKeys;
-
-		[Header("Events")]
-		[Tooltip("Events to run when the door is unlocked.")]
-		[SerializeField] private UnityEvent onDoorUnlocked;
-
-		[Tooltip("Events to run when the KeyHolder tries to open the door and key requirement is not met.")]
-		[SerializeField] private UnityEvent doorLocked;
 
 		[Header("Animation")]
 		[Tooltip("Name of Animator trigger parameter when the door is unlocked.")]
@@ -30,12 +32,21 @@ namespace UnityUtilities.Systems.KeyDoor {
 		[Tooltip("Name of Animator trigger parameter when KeyHolder tries to open the door and key requirement is not met.")]
 		[SerializeField] private string lockedAnimTrigger;
 
+		[Tooltip("Delay between activating the unlock and actually unlocking the door.")]
+		[SerializeField] private float unlockDelay;
+
 		private Animator _animator;
 		private int _onUnlockedId;
 		private int _lockedId;
 
-		public void Unlock() {
-			PlayUnlockedAnimation();
+		public void TryToUnlock(KeyHolder holder) {
+			if (unlockMethod == UnlockMethod.OnHolderCollision && holder.CanUnlock(requiredKeys)) {
+				foreach (var key in requiredKeys) {
+					if (key.consumeOnUse) holder.RemoveKey(key);
+				}
+
+				StartCoroutine(Unlock());
+			} else PlayLockedAnimation();
 		}
 
 		private void Awake() {
@@ -44,32 +55,42 @@ namespace UnityUtilities.Systems.KeyDoor {
 			_lockedId = Animator.StringToHash(lockedAnimTrigger);
 			if (unlockMethod == UnlockMethod.OnKeyCollect) {
 				foreach (var k in requiredKeys) {
-					k.onKeyCollect.AddListener(Unlock);
+					k.OnKeyCollect += Unlock;
 				}
 			}
 		}
 
+		private void Unlock(Key k) {
+			StartCoroutine(Unlock());
+		}
+
+		private IEnumerator Unlock() {
+			yield return new WaitForSeconds(unlockDelay);
+			isUnlocked = true;
+			PlayUnlockedAnimation();
+		}
+
 		private void OnTriggerEnter(Collider other) {
 			var holder = other.GetComponent<KeyHolder>();
-			if (unlockMethod == UnlockMethod.OnHolderCollision && holder != null && holder.CanUnlock(requiredKeys)) Unlock();
-			else PlayLockedAnimation();
+			if (holder == null) return;
+			TryToUnlock(holder);
 		}
 
 		private void OnTriggerEnter2D(Collider2D other) {
 			var holder = other.GetComponent<KeyHolder>();
-			if (unlockMethod == UnlockMethod.OnHolderCollision && holder != null && holder.CanUnlock(requiredKeys)) Unlock();
-			else PlayLockedAnimation();
+			if (holder == null) return;
+			TryToUnlock(holder);
 		}
 
 		private void PlayLockedAnimation() {
 			if (_animator == null || lockedAnimTrigger == null) return;
-			doorLocked.Invoke();
+			DoorLocked?.Invoke();
 			_animator.SetTrigger(_lockedId);
 		}
 
 		private void PlayUnlockedAnimation() {
 			if (_animator == null || onUnlockedAnimTrigger == null) return;
-			onDoorUnlocked.Invoke();
+			OnDoorUnlocked?.Invoke();
 			_animator.SetTrigger(_onUnlockedId);
 		}
 	}

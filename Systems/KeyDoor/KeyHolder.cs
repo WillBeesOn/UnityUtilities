@@ -3,13 +3,8 @@ using System.Linq;
 using UnityEngine;
 
 namespace UnityUtilities.Systems.KeyDoor {
-	public enum KeyCollectionMethod {
-		OnCollision,
-		Custom
-	}
 
 	public class KeyHolder : MonoBehaviour {
-		[SerializeField] private KeyCollectionMethod keyCollectionMethod;
 		private readonly HashSet<Key> _keySet = new HashSet<Key>();
 
 		public void AddKey(Key k) {
@@ -28,14 +23,14 @@ namespace UnityUtilities.Systems.KeyDoor {
 
 		private void OnTriggerEnter(Collider other) {
 			var key = other.GetComponent<Key>();
-			if (key == null) return;
-			if (keyCollectionMethod == KeyCollectionMethod.OnCollision) AddKey(key);
+			if (key == null || key.keyCollectionMethod == KeyCollectionMethod.OnCollision) return;
+			AddKey(key);
 		}
 
 		private void OnTriggerEnter2D(Collider2D other) {
 			var key = other.GetComponent<Key>();
-			if (key == null) return;
-			if (keyCollectionMethod == KeyCollectionMethod.OnCollision) AddKey(key);
+			if (key == null || key.keyCollectionMethod == KeyCollectionMethod.OnCollision) return;
+			AddKey(key);
 		}
 	}
 }
