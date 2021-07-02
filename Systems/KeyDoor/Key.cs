@@ -7,7 +7,8 @@ namespace UnityUtilities.Systems.KeyDoor {
 		OnCollision,
 		Custom
 	}
-
+	
+	// A Key used to open a KeyLock when obtained by a KeyHolder.
 	public class Key : MonoBehaviour {
 		// Events to run when this Key gets collected by a KeyHolder.
 		public event Action<Key> OnKeyCollect;

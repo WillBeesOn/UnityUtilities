@@ -10,6 +10,7 @@ namespace UnityUtilities.Systems.KeyDoor {
 		Custom
 	};
 
+	// A locked door or object that can be unlocked if a KeyHolder is holding the required Key(s).
 	public class KeyLock : MonoBehaviour {
 		//Events to run when the KeyHolder tries to open the door and key requirement is not met.
 		public event Action DoorLocked;

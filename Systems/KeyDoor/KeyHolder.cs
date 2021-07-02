@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace UnityUtilities.Systems.KeyDoor {
 
+	// An object that gathers Keys which are used to unlock KeyLocks.
 	public class KeyHolder : MonoBehaviour {
 		private readonly HashSet<Key> _keySet = new HashSet<Key>();
 
@@ -23,13 +24,13 @@ namespace UnityUtilities.Systems.KeyDoor {
 
 		private void OnTriggerEnter(Collider other) {
 			var key = other.GetComponent<Key>();
-			if (key == null || key.keyCollectionMethod == KeyCollectionMethod.OnCollision) return;
+			if (key == null || key.keyCollectionMethod != KeyCollectionMethod.OnCollision) return;
 			AddKey(key);
 		}
 
 		private void OnTriggerEnter2D(Collider2D other) {
 			var key = other.GetComponent<Key>();
-			if (key == null || key.keyCollectionMethod == KeyCollectionMethod.OnCollision) return;
+			if (key == null || key.keyCollectionMethod != KeyCollectionMethod.OnCollision) return;
 			AddKey(key);
 		}
 	}

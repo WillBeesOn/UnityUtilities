@@ -32,3 +32,4 @@ A collection of commonly used Unity/game concepts and functions I'm developing a
 
 ### 6. `Systems`
 - `KeyDoor`: Open locked doors by collecting keys.
+- `InteractWithWorldSpaceUI`: Toggles world space UI to indicate player can "interact" with certain objects.
