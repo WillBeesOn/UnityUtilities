@@ -46,7 +46,7 @@ namespace UnityUtilities.Systems {
 			OnInteract?.Invoke(objectToSendOnEvent);
 		}
 
-		// Orient the camera after all movement is completed this frame to avoid jittering
+		// Orient the world space Canvas after all movement is completed this frame to avoid jittering
 		private void LateUpdate() {
 			if (_isVisible) {
 				var cameraRotation = mainCamera.transform.rotation;
