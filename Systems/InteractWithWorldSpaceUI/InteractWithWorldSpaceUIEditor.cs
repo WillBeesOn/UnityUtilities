@@ -26,7 +26,6 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 		[NonSerialized] private bool _showActions;
 		[NonSerialized] private bool _inputAssetInitialized;
 
-
 		// Tooltip text
 		[NonSerialized] private readonly GUIContent _actionMapSelectTooltip =
 			EditorGUIUtility.TrTextContent("Target Action Map", "Action Map that contains the target Action that should activate an \"interaction\"");
