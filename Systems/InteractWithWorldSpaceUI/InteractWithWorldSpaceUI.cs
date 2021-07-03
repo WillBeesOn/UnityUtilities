@@ -9,28 +9,13 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 	public class InteractWithWorldSpaceUI : MonoBehaviour {
 		// Events to run when something is interacted with
 		public static event Action<GameObject> OnInteract;
-
-		[Tooltip("Camera for UI popup to look at")]
+		
 		[SerializeField] private Camera mainCamera;
-
-		[Header("Input Parameters")]
-		[Tooltip("Unity Input System asset you are using")]
 		[SerializeField] private InputActionAsset controls;
-
-		[Tooltip("Name of Action Map that contains the target Action that should activate an \"interaction\"")]
 		[SerializeField] private string targetActionMap;
-
-		[Tooltip("Name of the target Action that should activate an \"interaction\"")]
 		[SerializeField] private string targetAction;
-
-		[Header("GameObjects")]
-		[Tooltip("The UI GameObject to toggle when triggered")]
 		[SerializeField] private GameObject uiPopUp;
-
-		[Tooltip("Trigger toggling the UI popup when this GameObject enters the attached trigger Collider")]
 		[SerializeField] private GameObject uiPopUpTrigger;
-
-		[Tooltip("GameObject to send to subscribers of OnInteract event")]
 		[SerializeField] private GameObject objectToSendOnEvent;
 
 		private bool _isVisible;

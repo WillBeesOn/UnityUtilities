@@ -27,11 +27,16 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 		[NonSerialized] private bool _inputAssetInitialized;
 
 
+		// Tooltip text
 		[NonSerialized] private readonly GUIContent _actionMapSelectTooltip =
 			EditorGUIUtility.TrTextContent("Target Action Map", "Action Map that contains the target Action that should activate an \"interaction\"");
-
 		[NonSerialized] private readonly GUIContent _actionSelectTooltip =
 			EditorGUIUtility.TrTextContent("Target Action", "Name of the target Action that should activate an \"interaction\"");
+		[NonSerialized] private GUIContent _controlsTooltip;
+		[NonSerialized] private GUIContent _mainCameraTooltip;
+		[NonSerialized] private GUIContent _uiPopUpTooltip;
+		[NonSerialized] private GUIContent _uiPopUpTriggerTooltip;
+		[NonSerialized] private GUIContent _objectToSendOnEventToolTip;
 
 		private void OnEnable() {
 			// Get properties from associated serializedObject
@@ -42,16 +47,24 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 			_uiPopUp = serializedObject.FindProperty("uiPopUp");
 			_uiPopUpTrigger = serializedObject.FindProperty("uiPopUpTrigger");
 			_objectToSendOnEvent = serializedObject.FindProperty("objectToSendOnEvent");
+
+			_controlsTooltip = EditorGUIUtility.TrTextContent(_controls.displayName, "Unity Input System asset you are using");
+			_mainCameraTooltip = EditorGUIUtility.TrTextContent(_mainCamera.displayName, "Camera for UI popup to look at");
+			_uiPopUpTooltip = EditorGUIUtility.TrTextContent(_uiPopUp.displayName, "The UI GameObject to toggle when triggered");
+			_uiPopUpTriggerTooltip = EditorGUIUtility.TrTextContent(_uiPopUpTrigger.displayName, "Trigger toggling the UI popup when this GameObject enters the attached trigger Collider");
+			_objectToSendOnEventToolTip = EditorGUIUtility.TrTextContent(_objectToSendOnEvent.displayName, "GameObject to send to subscribers of OnInteract event");
 		}
 
 		public override void OnInspectorGUI() {
 			serializedObject.Update();
 
-			EditorGUILayout.PropertyField(_mainCamera);
+			EditorGUILayout.PropertyField(_mainCamera, _mainCameraTooltip);
 
 			// Check if a new InputActionAsset was added.
+			EditorGUILayout.Separator();
+			EditorGUILayout.LabelField("Input Settings", EditorStyles.boldLabel);
 			EditorGUI.BeginChangeCheck();
-			EditorGUILayout.PropertyField(_controls);
+			EditorGUILayout.PropertyField(_controls, _controlsTooltip);
 			var inputAsset = (InputActionAsset) _controls.objectReferenceValue;
 
 			// If a valid InputActionAsset was entered, display the selection for ActionMaps and Actions
@@ -105,9 +118,11 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 
 			--EditorGUI.indentLevel;
 
-			EditorGUILayout.PropertyField(_uiPopUp);
-			EditorGUILayout.PropertyField(_uiPopUpTrigger);
-			EditorGUILayout.PropertyField(_objectToSendOnEvent);
+			EditorGUILayout.Separator();
+			EditorGUILayout.LabelField("GameObjects", EditorStyles.boldLabel);
+			EditorGUILayout.PropertyField(_uiPopUp, _uiPopUpTooltip);
+			EditorGUILayout.PropertyField(_uiPopUpTrigger, _uiPopUpTriggerTooltip);
+			EditorGUILayout.PropertyField(_objectToSendOnEvent, _objectToSendOnEventToolTip);
 
 			// Update serialized fields in associated serializedObject.
 			serializedObject.ApplyModifiedProperties();
