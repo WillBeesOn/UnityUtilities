@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace UnityUtilities.Systems {
+namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 	// Attach to a GameObject with a world space Canvas and a trigger Collider.
 	// Toggles a world space UI GameObject when another GameObject enters this object's trigger Collider.
 	// When UI is visible, allows user input to "interact" with the object and invokes an event that sends GameObject.
@@ -38,6 +38,7 @@ namespace UnityUtilities.Systems {
 		private InputAction _action;
 
 		private void Awake() {
+			// TODO safe to forgo specifying the control scheme? If I just set the callback to an Action inside an Action map, will it apply to all schemes?
 			_actionMap = controls.FindActionMap(targetActionMap);
 			_action = _actionMap.FindAction(targetAction);
 		}
@@ -57,8 +58,10 @@ namespace UnityUtilities.Systems {
 
 		private void ToggleUIPopUp(GameObject other, bool show) {
 			if (uiPopUpTrigger != other) return;
-			if (show) _action.performed += OnInteractEvent;
-			else _action.performed -= OnInteractEvent;
+			if (_action != null) {
+				if (show) _action.performed += OnInteractEvent;
+				else _action.performed -= OnInteractEvent;	
+			}
 			uiPopUp.SetActive(show);
 			_isVisible = show;
 		}
