@@ -21,6 +21,12 @@ namespace UnityUtilities.Systems.KeyDoor {
 		public bool CanUnlock(IEnumerable<Key> requiredKeys) {
 			return !requiredKeys.Except(_keySet).Any();
 		}
+		
+		public void OnKeyInteract(GameObject g) {
+			var key = g.GetComponent<Key>();
+			if (key == null) return;
+			AddKey(key);
+		}
 
 		private void OnTriggerEnter(Collider other) {
 			var key = other.GetComponent<Key>();

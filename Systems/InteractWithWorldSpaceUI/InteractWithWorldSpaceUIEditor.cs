@@ -14,28 +14,49 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 		[NonSerialized] private SerializedProperty _targetAction;
 		[NonSerialized] private SerializedProperty _uiPopUp;
 		[NonSerialized] private SerializedProperty _uiPopUpTrigger;
-		[NonSerialized] private SerializedProperty _objectToSendOnEvent;
+		[NonSerialized] private SerializedProperty _objectToSendOnEnterEvent;
+		[NonSerialized] private SerializedProperty _objectToSendOnInteractEvent;
+		[NonSerialized] private SerializedProperty _uOnEnter;
+		[NonSerialized] private SerializedProperty _uOnInteract;
 
 		// Render ActionMap and Action lists in the editor.
 		[NonSerialized] private GUIContent[] _actionMapRenderedList;
 		[NonSerialized] private GUIContent[] _actionRenderedList;
 
-		// Fields to keep track of selected Input system values and
+		// Fields to keep track of selected Input system values
 		[NonSerialized] private int _currentActionMap;
 		[NonSerialized] private int _currentAction;
 		[NonSerialized] private bool _showActions;
 		[NonSerialized] private bool _inputAssetInitialized;
 
+		// Fields for Events
+		[NonSerialized] private bool _showUnityEvents;
+
 		// Tooltip text
 		[NonSerialized] private readonly GUIContent _actionMapSelectTooltip =
 			EditorGUIUtility.TrTextContent("Target Action Map", "Action Map that contains the target Action that should activate an \"interaction\"");
+
 		[NonSerialized] private readonly GUIContent _actionSelectTooltip =
 			EditorGUIUtility.TrTextContent("Target Action", "Name of the target Action that should activate an \"interaction\"");
+
+		[NonSerialized] private readonly GUIContent _eventsExpandedTooltip =
+			EditorGUIUtility.TrTextContent("Events", "Put event listeners here");
+
+		[NonSerialized] private readonly GUIContent _onEnterEventTooltip =
+			EditorGUIUtility.TrTextContent("On Enter", "Invoked when UI popup is triggered");
+
+		[NonSerialized] private readonly GUIContent _onInteractEventTooltip =
+			EditorGUIUtility.TrTextContent("On Interact", "Invoked when an \"interaction\" is triggered");
+
+		[NonSerialized] private readonly GUIContent _eventListenerPopupTooltip =
+			EditorGUIUtility.TrTextContent("", "Event listener function");
+
 		[NonSerialized] private GUIContent _controlsTooltip;
 		[NonSerialized] private GUIContent _mainCameraTooltip;
 		[NonSerialized] private GUIContent _uiPopUpTooltip;
 		[NonSerialized] private GUIContent _uiPopUpTriggerTooltip;
-		[NonSerialized] private GUIContent _objectToSendOnEventToolTip;
+		[NonSerialized] private GUIContent _objectToSendOnEnterEventToolTip;
+		[NonSerialized] private GUIContent _objectToSendOnInteractEventToolTip;
 
 		private void OnEnable() {
 			// Get properties from associated serializedObject
@@ -45,13 +66,17 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 			_targetAction = serializedObject.FindProperty("targetAction");
 			_uiPopUp = serializedObject.FindProperty("uiPopUp");
 			_uiPopUpTrigger = serializedObject.FindProperty("uiPopUpTrigger");
-			_objectToSendOnEvent = serializedObject.FindProperty("objectToSendOnEvent");
+			_objectToSendOnEnterEvent = serializedObject.FindProperty("objectToSendOnEnterEvent");
+			_objectToSendOnInteractEvent = serializedObject.FindProperty("objectToSendOnInteractEvent");
+			_uOnEnter = serializedObject.FindProperty("uOnEnter");
+			_uOnInteract = serializedObject.FindProperty("uOnInteract");
 
 			_controlsTooltip = EditorGUIUtility.TrTextContent(_controls.displayName, "Unity Input System asset you are using");
 			_mainCameraTooltip = EditorGUIUtility.TrTextContent(_mainCamera.displayName, "Camera for UI popup to look at");
 			_uiPopUpTooltip = EditorGUIUtility.TrTextContent(_uiPopUp.displayName, "The UI GameObject to toggle when triggered");
 			_uiPopUpTriggerTooltip = EditorGUIUtility.TrTextContent(_uiPopUpTrigger.displayName, "Trigger toggling the UI popup when this GameObject enters the attached trigger Collider");
-			_objectToSendOnEventToolTip = EditorGUIUtility.TrTextContent(_objectToSendOnEvent.displayName, "GameObject to send to subscribers of OnInteract event");
+			_objectToSendOnEnterEventToolTip = EditorGUIUtility.TrTextContent(_objectToSendOnEnterEvent.displayName, "GameObject to send to subscribers of OnEnter event");
+			_objectToSendOnInteractEventToolTip = EditorGUIUtility.TrTextContent(_objectToSendOnInteractEvent.displayName, "GameObject to send to subscribers of OnInteract event");
 		}
 
 		public override void OnInspectorGUI() {
@@ -118,10 +143,23 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 			--EditorGUI.indentLevel;
 
 			EditorGUILayout.Separator();
-			EditorGUILayout.LabelField("GameObjects", EditorStyles.boldLabel);
+			EditorGUILayout.LabelField("UI", EditorStyles.boldLabel);
 			EditorGUILayout.PropertyField(_uiPopUp, _uiPopUpTooltip);
 			EditorGUILayout.PropertyField(_uiPopUpTrigger, _uiPopUpTriggerTooltip);
-			EditorGUILayout.PropertyField(_objectToSendOnEvent, _objectToSendOnEventToolTip);
+
+			EditorGUILayout.Separator();
+
+			EditorGUILayout.PropertyField(_objectToSendOnEnterEvent, _objectToSendOnEnterEventToolTip);
+			EditorGUILayout.PropertyField(_objectToSendOnInteractEvent, _objectToSendOnInteractEventToolTip);
+
+			EditorGUILayout.Separator();
+
+			_showUnityEvents = EditorGUILayout.Foldout(_showUnityEvents, "Unity Events");
+			if (_showUnityEvents) {
+				EditorGUILayout.PropertyField(_uOnEnter, new GUIContent("On Enter"));
+				EditorGUILayout.PropertyField(_uOnInteract, new GUIContent("On Interact"));
+			}
+
 
 			// Update serialized fields in associated serializedObject.
 			serializedObject.ApplyModifiedProperties();

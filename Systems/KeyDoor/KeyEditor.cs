@@ -13,6 +13,7 @@ namespace UnityUtilities.Systems.KeyDoor {
 		[NonSerialized] private SerializedProperty _consumeOnUse;
 		[NonSerialized] private SerializedProperty _destroyDelay;
 		[NonSerialized] private SerializedProperty _onCollectedAnimTrigger;
+		[NonSerialized] private SerializedProperty _onCollectedEvent;
 
 		// Animation rendered list
 		[NonSerialized] private GUIContent[] _animatorTriggersRenderedList;
@@ -23,6 +24,9 @@ namespace UnityUtilities.Systems.KeyDoor {
 		[NonSerialized] private bool _initializedAnimatorTriggers;
 		[NonSerialized] private Animator _attachedAnimator;
 		[NonSerialized] private List<AnimatorControllerParameter> _triggers;
+
+		// Event fields
+		[NonSerialized] private bool _showEvents;
 
 		// Tooltip text
 		[NonSerialized] private readonly GUIContent _manageAnimationTooltip = EditorGUIUtility.TrTextContent("Manage Animation", "Allow this to manage animations for the key. Requires an Animator component to be attached.");
@@ -36,6 +40,7 @@ namespace UnityUtilities.Systems.KeyDoor {
 			_consumeOnUse = serializedObject.FindProperty("consumeOnUse");
 			_destroyDelay = serializedObject.FindProperty("destroyDelay");
 			_onCollectedAnimTrigger = serializedObject.FindProperty("onCollectedAnimTrigger");
+			_onCollectedEvent = serializedObject.FindProperty("onKeyCollected");
 
 			_attachedAnimator = ((Key) serializedObject.targetObject).gameObject.GetComponent<Animator>();
 
@@ -70,6 +75,10 @@ namespace UnityUtilities.Systems.KeyDoor {
 
 			--EditorGUI.indentLevel;
 			EditorGUI.EndDisabledGroup();
+
+			_showEvents = EditorGUILayout.Foldout(_showEvents, "Unity Events");
+			if (_showEvents) EditorGUILayout.PropertyField(_onCollectedEvent, new GUIContent("On Key Collected"));
+
 			serializedObject.ApplyModifiedProperties();
 		}
 
@@ -78,7 +87,7 @@ namespace UnityUtilities.Systems.KeyDoor {
 				_animatorTriggersRenderedList = null;
 				return;
 			}
-			
+
 			_triggers = _attachedAnimator.parameters.Where(p => p.type == AnimatorControllerParameterType.Trigger).ToList();
 			_animatorTriggersRenderedList = new GUIContent[_triggers.Count + 1];
 			_animatorTriggersRenderedList[0] = new GUIContent("<None>");

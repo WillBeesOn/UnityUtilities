@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace UnityUtilities.Systems.KeyDoor {
 	public enum KeyCollectionMethod {
@@ -14,7 +15,8 @@ namespace UnityUtilities.Systems.KeyDoor {
 		public event Action<Key> OnKeyCollect;
 		public KeyCollectionMethod keyCollectionMethod;
 		public bool consumeOnUse;
-		
+
+		[SerializeField] private UnityEvent<Key> onKeyCollected;
 		[SerializeField] private float destroyDelay;
 		[SerializeField] private int onCollectedAnimTrigger;
 
@@ -24,6 +26,7 @@ namespace UnityUtilities.Systems.KeyDoor {
 
 		public void KeyCollected(KeyHolder holder) {
 			OnKeyCollect?.Invoke(this);
+			onKeyCollected?.Invoke(this);
 			if (_collider != null) _collider.enabled = false;
 			if (_collider2D != null) _collider.enabled = false;
 			PlayGetKeyAnimation();
