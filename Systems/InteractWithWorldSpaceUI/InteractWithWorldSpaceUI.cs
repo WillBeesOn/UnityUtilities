@@ -1,37 +1,29 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-namespace UnityUtilities.Systems {
+namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
+	
 	// Attach to a GameObject with a world space Canvas and a trigger Collider.
 	// Toggles a world space UI GameObject when another GameObject enters this object's trigger Collider.
 	// When UI is visible, allows user input to "interact" with the object and invokes an event that sends GameObject.
 	public class InteractWithWorldSpaceUI : MonoBehaviour {
 		// Events to run when something is interacted with
-		public static event Action<GameObject> OnInteract;
+		public event Action<GameObject> OnEnter;
+		public event Action<GameObject> OnInteract;
 
-		[Tooltip("Camera for UI popup to look at")]
+		[SerializeField] private UnityEvent<GameObject> uOnEnter;
+		[SerializeField] private UnityEvent<GameObject> uOnInteract;
 		[SerializeField] private Camera mainCamera;
-
-		[Header("Input Parameters")]
-		[Tooltip("Unity Input System asset you are using")]
 		[SerializeField] private InputActionAsset controls;
-
-		[Tooltip("Name of Action Map that contains the target Action that should activate an \"interaction\"")]
 		[SerializeField] private string targetActionMap;
-
-		[Tooltip("Name of the target Action that should activate an \"interaction\"")]
 		[SerializeField] private string targetAction;
-
-		[Header("GameObjects")]
-		[Tooltip("The UI GameObject to toggle when triggered")]
 		[SerializeField] private GameObject uiPopUp;
-
-		[Tooltip("Trigger toggling the UI popup when this GameObject enters the attached trigger Collider")]
 		[SerializeField] private GameObject uiPopUpTrigger;
-
-		[Tooltip("GameObject to send to subscribers of OnInteract event")]
-		[SerializeField] private GameObject objectToSendOnEvent;
+		[SerializeField] private GameObject objectToSendOnEnterEvent;
+		[SerializeField] private GameObject objectToSendOnInteractEvent;
 
 		private bool _isVisible;
 		private InputActionMap _actionMap;
@@ -43,7 +35,8 @@ namespace UnityUtilities.Systems {
 		}
 
 		private void OnInteractEvent(InputAction.CallbackContext c) {
-			OnInteract?.Invoke(objectToSendOnEvent);
+			OnInteract?.Invoke(objectToSendOnInteractEvent);
+			uOnInteract?.Invoke(objectToSendOnInteractEvent);
 		}
 
 		// Orient the world space Canvas after all movement is completed this frame to avoid jittering
@@ -57,13 +50,18 @@ namespace UnityUtilities.Systems {
 
 		private void ToggleUIPopUp(GameObject other, bool show) {
 			if (uiPopUpTrigger != other) return;
-			if (show) _action.performed += OnInteractEvent;
-			else _action.performed -= OnInteractEvent;
+			if (_action != null) {
+				if (show) _action.performed += OnInteractEvent;
+				else _action.performed -= OnInteractEvent;
+			}
+
 			uiPopUp.SetActive(show);
 			_isVisible = show;
 		}
 
 		private void OnTriggerEnter(Collider other) {
+			OnEnter?.Invoke(objectToSendOnEnterEvent);
+			uOnEnter?.Invoke(objectToSendOnEnterEvent);
 			ToggleUIPopUp(other.gameObject, true);
 		}
 
@@ -72,6 +70,8 @@ namespace UnityUtilities.Systems {
 		}
 
 		private void OnTriggerEnter2D(Collider2D other) {
+			OnEnter?.Invoke(objectToSendOnEnterEvent);
+			uOnEnter?.Invoke(objectToSendOnEnterEvent);
 			ToggleUIPopUp(other.gameObject, true);
 		}
 
