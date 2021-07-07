@@ -30,7 +30,6 @@ namespace UnityUtilities.Systems.InteractWithWorldSpaceUI {
 		private InputAction _action;
 
 		private void Awake() {
-			// TODO safe to forgo specifying the control scheme? If I just set the callback to an Action inside an Action map, will it apply to all schemes?
 			_actionMap = controls.FindActionMap(targetActionMap);
 			_action = _actionMap.FindAction(targetAction);
 		}
