@@ -6,11 +6,9 @@ namespace UnityUtilities.Collections {
 	
 	public class GameObjectGrid2D : Grid2D<GameObject> {
 		
-		public GameObjectGrid2D(int x, int y, float cellSize, Vector3 origin) : this(x, y, cellSize, origin, GridOrientation.XY, new List<GameObject>(x * y)) { }
+		public GameObjectGrid2D(int x, int y, float cellSize, Vector3 origin, GridOrientation orientation = GridOrientation.XZ) : this(x, y, cellSize, origin, new List<GameObject>(x * y), orientation) { }
 		
-		public GameObjectGrid2D(int x, int y, float cellSize, Vector3 origin, GridOrientation orientation) : this(x, y, cellSize, origin, orientation, new List<GameObject>(x * y)) { }
-
-		public GameObjectGrid2D(int x, int y, float cellSize, Vector3 origin, GridOrientation orientation, IEnumerable<GameObject> initialList) : base(x, y, cellSize, origin, orientation, initialList) {
+		public GameObjectGrid2D(int x, int y, float cellSize, Vector3 origin, IEnumerable<GameObject> initialList, GridOrientation orientation = GridOrientation.XZ) : base(x, y, cellSize, origin, initialList, orientation) {
 			PositionAllObjects();
 		}
 
@@ -37,7 +35,7 @@ namespace UnityUtilities.Collections {
 
 		private void PositionObject(int index) {
 			GetXYForIndex(index, out var x, out var y);
-			base[index].transform.position = GetWorldPositionByIndex(x, y);
+			base[index].transform.position = GetWorldPosition(x, y);
 		}
 	}
 }

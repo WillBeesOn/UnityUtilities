@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -108,6 +109,33 @@ namespace UnityUtilities {
                 default:
                     return false;   
             }
+        }
+
+        /// <summary>
+        /// Creates a TextMeshPro object in the game world.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="parent"></param>
+        /// <param name="position"></param>
+        /// <param name="color"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="alignment"></param>
+        /// <param name="anchor"></param>
+        /// <returns></returns>
+        public static TextMeshPro CreateWorldText(string text, Transform parent, Vector3 position, Color color, int fontSize = 12, TextAlignmentOptions alignment = TextAlignmentOptions.Midline, TextAnchor anchor = TextAnchor.MiddleCenter) {
+            var worldTextGameObj = new GameObject("WorldText", typeof(TextMeshPro));
+            var transform = worldTextGameObj.transform;
+            var textMesh = worldTextGameObj.GetComponent<TextMeshPro>();
+            
+            transform.SetParent(parent, false);
+            transform.localPosition = position;
+
+            textMesh.text = text;
+            textMesh.color = color;
+            textMesh.fontSize = fontSize;
+            textMesh.alignment = alignment;
+
+            return textMesh;
         }
     }
 }

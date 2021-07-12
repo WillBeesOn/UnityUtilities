@@ -15,26 +15,26 @@ namespace UnityUtilities.Collections.Generic {
 			height = y;
 		}
 
-		public T Get(int x, int y) => IsValidIndex(x, y) ? this[GetLinearPos(x, y)] : default;
+		public T Get(int x, int y) => IsValidIndex(x, y) ? this[IndexOf1D(x, y)] : default;
 
 		public void Set(T value, int x, int y) {
 			if (!IsValidIndex(x, y)) return;
-			base[GetLinearPos(x, y)] = value;
+			base[IndexOf1D(x, y)] = value;
 		}
 
 		public virtual void Insert(T item, int x, int y) {
 			if (IsValidIndex(x, y)) {
-				Insert(GetLinearPos(x, y), item);
+				Insert(IndexOf1D(x, y), item);
 			}
 		}
 
 		public virtual void Remove(int x, int y) {
 			if (IsValidIndex(x, y)) {
-				RemoveAt(GetLinearPos(x, y));
+				RemoveAt(IndexOf1D(x, y));
 			}
 		}
 
-		public virtual void RemoveRange(int x, int y, int count) => RemoveRange(GetLinearPos(x, y), count);
+		public virtual void RemoveRange(int x, int y, int count) => RemoveRange(IndexOf1D(x, y), count);
 
 		public void IndexOf(T item, out int x, out int y) {
 			var targetIndex = IndexOf(item);
@@ -42,10 +42,12 @@ namespace UnityUtilities.Collections.Generic {
 			y = Mathf.FloorToInt(targetIndex / width);
 		}
 
-		protected bool IsValidIndex(int x, int y) => x < width && x >= 0 && y < height && y >= 0;
+		private bool IsValidIndex(int x, int y) => x < width && x >= 0 && y < height && y >= 0;
 
-		private int GetLinearPos(int x, int y) => y * width + x;
+		// Gets the 1D index of an item in the list given x,y position.
+		private int IndexOf1D(int x, int y) => y * width + x;
 
+		// Given a 1D index, return x,y position.
 		protected void GetXYForIndex(int index, out int x, out int y) {
 			y = index / width;
 			x = index - y * width;
