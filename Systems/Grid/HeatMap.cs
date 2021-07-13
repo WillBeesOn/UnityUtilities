@@ -9,6 +9,7 @@ namespace UnityUtilities.Systems.Grid {
 		[SerializeField] private int activityRadius;
 		[SerializeField] private int activityValue;
 		[SerializeField] private int debugTextFontSize;
+		[SerializeField] private Color debugTextColor;
 
 		private Grid2D<int> _heatMapItems;
 		private List2D<TextMeshPro> _gridText;
@@ -70,7 +71,7 @@ namespace UnityUtilities.Systems.Grid {
 			base.DrawDebug();
 			for (var y = 0; y < width; y++) {
 				for (var x = 0; x < height; x++) {
-					var newTextMesh = Utils.CreateWorldText("0", transform, _heatMapItems.GetWorldPosition(x, y), Color.white, debugTextFontSize);
+					var newTextMesh = Utils.CreateWorldText("0", transform, _heatMapItems.GetWorldPosition(x, y), debugTextColor, debugTextFontSize);
 					newTextMesh.gameObject.transform.rotation = Quaternion.Euler(90, 0, 0);
 					_gridText.Add(newTextMesh);
 				}

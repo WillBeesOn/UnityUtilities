@@ -42,7 +42,7 @@ namespace UnityUtilities.Collections.Generic {
 			y = Mathf.FloorToInt(targetIndex / width);
 		}
 
-		private bool IsValidIndex(int x, int y) => x < width && x >= 0 && y < height && y >= 0;
+		private bool IsValidIndex(int x, int y) => IndexOf1D(x, y) < Count;
 
 		// Gets the 1D index of an item in the list given x,y position.
 		private int IndexOf1D(int x, int y) => y * width + x;
