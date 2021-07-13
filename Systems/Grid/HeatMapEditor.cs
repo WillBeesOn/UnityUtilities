@@ -1,7 +1,6 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using UnityUtilities.Collections.Generic;
 
 namespace UnityUtilities.Systems.Grid {
 	[CustomEditor(typeof(HeatMap))]
