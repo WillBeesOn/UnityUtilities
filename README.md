@@ -1,5 +1,5 @@
 # UnityUtilities
-A collection of commonly used Unity/game concepts and functions I'm developing as I figure out what the heck I'm even supposed to be doing in the other Unity projects I'm working on. Basically everything is a work-in-progress.
+A collection of Unity/game concepts and functions I've extracted from my other Unity projects that I thought would be useful and general-purpose packages.
 
 ## Namespace Table of Contents
 
