@@ -1,5 +1,5 @@
 # UnityUtilities
-A collection of Unity/game concepts and functions I've extracted from my other Unity projects and converted into general-purpose packages.
+A collection of Unity/game concepts and functions I've extracted from my other Unity projects and converted into a general-purpose library.
 
 ## Namespace Table of Contents
 
